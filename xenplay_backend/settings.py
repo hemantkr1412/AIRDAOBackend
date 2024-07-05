@@ -91,10 +91,21 @@ WSGI_APPLICATION = "xenplay_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "xenplay",
+        "USER": "xenplay_user",
+        "PASSWORD": "yn54ZHoWKIBprjtha2PWzpC1mhY2SZ1k",
+        "HOST": "dpg-cq3t60ks1f4s73fm01i0-a",
+        "PORT": 5432,
+        
     }
 }
 
