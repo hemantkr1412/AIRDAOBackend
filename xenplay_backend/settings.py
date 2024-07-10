@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-lnn09z^c&7&r3do3@crgh$qjy#o8nf+)3c59b34ijyt$3@uw3u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["https://xenplaybackend.onrender.com"]
+ALLOWED_HOSTS = ["https://xenplaybackend.onrender.com","http://xenplaybackend.onrender.com","xenplaybackend.onrender.com"]
 
 
 # Application definition
