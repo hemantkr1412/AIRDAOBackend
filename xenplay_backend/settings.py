@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-lnn09z^c&7&r3do3@crgh$qjy#o8nf+)3c59b34ijyt$3@uw3u"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["https://xenplaybackend.onrender.com","http://xenplaybackend.onrender.com","xenplaybackend.onrender.com"]
 
