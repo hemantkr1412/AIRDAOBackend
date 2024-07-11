@@ -104,7 +104,7 @@ DATABASES = {
         "NAME": "xenplay",
         "USER": "xenplay_user",
         "PASSWORD": "yn54ZHoWKIBprjtha2PWzpC1mhY2SZ1k",
-        "HOST": "dpg-cq3t60ks1f4s73fm01i0-a",
+        "HOST": "dpg-cq3t60ks1f4s73fm01i0-a.oregon-postgres.render.com",
         "PORT": 5432,
         
     }
