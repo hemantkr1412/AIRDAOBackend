@@ -148,7 +148,7 @@ TIME_ZONE = 'Asia/Kolkata'
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static/v2")
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
