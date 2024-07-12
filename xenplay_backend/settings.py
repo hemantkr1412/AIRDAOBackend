@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+from .config import config
 import os
 from pathlib import Path
 
@@ -21,12 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-lnn09z^c&7&r3do3@crgh$qjy#o8nf+)3c59b34ijyt$3@uw3u"
+SECRET_KEY = config["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["https://xenplaybackend.onrender.com","http://xenplaybackend.onrender.com","xenplaybackend.onrender.com",'127.0.0.1', '52.66.253.239', 'localhost']
+ALLOWED_HOSTS = config["ALLOWED_HOSTS"]
+CORS_ALLOWED_ORIGINS = config["ORIGINS"]
 
 
 # Application definition
@@ -99,14 +101,13 @@ WSGI_APPLICATION = "xenplay_backend.wsgi.application"
 #     }
 # }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "xenplay",
-        "USER": "xenplay_user",
-        "PASSWORD": "yn54ZHoWKIBprjtha2PWzpC1mhY2SZ1k",
-        "HOST": "dpg-cq3t60ks1f4s73fm01i0-a.oregon-postgres.render.com",
-        "PORT": 5432,
-        
+   "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config["DB_NAME"],
+            "USER": config["DB_USER"],
+            "PASSWORD": config["DB_PASSWORD"],
+            "HOST": config["DB_HOST"],
+            "PORT": config["DB_PORT"],
     }
 }
 
