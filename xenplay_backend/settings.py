@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from .config import config
 import os
 from pathlib import Path
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
