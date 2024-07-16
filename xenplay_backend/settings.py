@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+from .config import config
+import os
 from pathlib import Path
+from storages.backends.s3boto3 import S3Boto3Storage
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-lnn09z^c&7&r3do3@crgh$qjy#o8nf+)3c59b34ijyt$3@uw3u"
+SECRET_KEY = config["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config["ALLOWED_HOSTS"]
+CORS_ALLOWED_ORIGINS = config["ORIGINS"]
 
 
 # Application definition
@@ -91,10 +95,20 @@ WSGI_APPLICATION = "xenplay_backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+   "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config["DB_NAME"],
+            "USER": config["DB_USER"],
+            "PASSWORD": config["DB_PASSWORD"],
+            "HOST": config["DB_HOST"],
+            "PORT": config["DB_PORT"],
     }
 }
 
@@ -135,9 +149,48 @@ TIME_ZONE = 'Asia/Kolkata'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "api/v1/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-# Default primary key field type
+
+if config["IS_LOCAL"]:
+    MEDIA_URL = "api/v1/media/"
+    STATIC_ROOT = os.path.join(BASE_DIR, "media")
+
+
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+class StaticStorage(S3Boto3Storage):
+    location = "static"
+    default_acl = "public-read"
+
+
+class PublicMediaStorage(S3Boto3Storage):
+    location = "media2"
+    default_acl = "public-read"
+    file_overwrite = False
+
+
+if not config["IS_LOCAL"]:
+    AWS_ACCESS_KEY_ID = config["AWS_ACCESS_KEY_ID"]
+    AWS_SECRET_ACCESS_KEY = config["AWS_SECRET_ACCESS_KEY"]
+    AWS_STORAGE_BUCKET_NAME = config["AWS_STORAGE_BUCKET_NAME"]
+    AWS_S3_SIGNATURE_NAME = config["AWS_S3_SIGNATURE_NAME"]
+    AWS_S3_REGION_NAME = "ap-south-1"
+    AWS_S3_FILE_OVERWRITE = True
+    AWS_DEFAULT_ACL = None
+    AWS_S3_VERITY = True
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_LOCATION = "static"
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    PUBLIC_MEDIA_LOCATION = "media2"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+
+
