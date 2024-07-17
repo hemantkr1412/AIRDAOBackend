@@ -48,6 +48,7 @@ class EventAdmin(admin.ModelAdmin):
         "start_date",
         "end_date",
         "resolution_date",
+        "token_volume",
     ]
     search_fields = ["event_name"]
     inlines = [PossibleResultInline]

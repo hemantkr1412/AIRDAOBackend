@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from user.models import User
 
+
 def avatarupload(instance, filename):
     file_extension = filename.split(".")[-1]
     new_file_name = str(random.randrange(1000, 1000000)) + "." + file_extension
@@ -26,6 +27,7 @@ class Event(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     resolution_date = models.DateTimeField()
+    token_volume = models.PositiveIntegerField(default=0, null=True, blank=True)
     # market = models.CharField(
     #     max_length=50,
     #     choices=[
@@ -44,7 +46,7 @@ class Event(models.Model):
             raise ValidationError("End date should be after start date")
         if self.resolution_date <= self.end_date:
             raise ValidationError("Resolution date should be after end date")
-        
+
     @property
     def market(self):
         now = timezone.now()
@@ -72,7 +74,10 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'possible_result',)
+        unique_together = (
+            "user",
+            "possible_result",
+        )
 
     def __str__(self):
         return f"Vote by {self.user} for {self.possible_result.result}"
