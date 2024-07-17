@@ -23,9 +23,9 @@ class Event(models.Model):
     )
     event_name = models.CharField(max_length=255)
     avatar = models.ImageField(upload_to=avatarupload, null=True, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    resolution_date = models.DateField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    resolution_date = models.DateTimeField()
     # market = models.CharField(
     #     max_length=50,
     #     choices=[
@@ -47,7 +47,7 @@ class Event(models.Model):
         
     @property
     def market(self):
-        now = timezone.now().date()
+        now = timezone.now()
 
         if self.start_date is None:
             return "start date not set"
