@@ -1,7 +1,13 @@
 from rest_framework import generics, pagination, status
 from rest_framework.response import Response
 from .models import Event, Vote, Category
-from .serializers import EventSerializer, VoteSerializer, CategorySerializer
+from user.models import User
+from .serializers import (
+    EventSerializer,
+    VoteSerializer,
+    CategorySerializer,
+    MyPredictionsSerializer,
+)
 
 
 class CategoryListView(generics.ListAPIView):
@@ -27,15 +33,19 @@ class EventListSortView(generics.ListAPIView):
     pagination_class = pagination.PageNumberPagination
 
     def get_queryset(self):
-        queryset = Event.objects.select_related("category").prefetch_related("possible_results")
-        sort_by = self.request.query_params.get('sort_by', None)
+        queryset = Event.objects.select_related("category").prefetch_related(
+            "possible_results"
+        )
+        sort_by = self.request.query_params.get("sort_by", None)
 
-        if sort_by == 'new':
-            queryset = queryset.order_by('-start_date')
-        elif sort_by == 'ending_soon':
-            queryset = queryset.order_by('end_date')
-        elif sort_by == 'volume':
-            queryset = queryset.order_by('-token_volume')  # Sorting by token volume in descending order
+        if sort_by == "new":
+            queryset = queryset.order_by("-start_date")
+        elif sort_by == "ending_soon":
+            queryset = queryset.order_by("end_date")
+        elif sort_by == "volume":
+            queryset = queryset.order_by(
+                "-token_volume"
+            )  # Sorting by token volume in descending order
         return queryset
 
 
@@ -58,3 +68,35 @@ class VoteListView(generics.ListAPIView):
 class VoteDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
+
+
+class MyPredictionsListView(generics.ListAPIView):
+    serializer_class = MyPredictionsSerializer
+    pagination_class = pagination.PageNumberPagination
+
+    def get_queryset(self):
+        # Retrieve the wallet address from the request headers
+        wallet_address = self.request.headers.get("X-Wallet-Address")
+
+        if not wallet_address:
+            return (
+                Vote.objects.none()
+            )
+        user = User.objects.filter(account=wallet_address).first()
+
+        if not user:
+            return (
+                Vote.objects.none()
+            ) 
+        return Vote.objects.filter(user=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if not queryset.exists():
+            return Response({"error": "No votes found for the user."}, status=status.HTTP_404_NOT_FOUND)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

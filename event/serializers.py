@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Category, Event, PossibleResult, Vote
 from user.models import User
+from django.db.models import F  
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -78,5 +79,22 @@ class VoteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context["request"].user
+        token_staked = validated_data.get("token_staked", 0)
+        possible_result = validated_data["possible_result"]
         vote = Vote.objects.create(user=user, **validated_data)
+
+        # Increment the token volume of the related event
+        event = possible_result.event
+        event.token_volume = F("token_volume") + token_staked
+        event.save(update_fields=["token_volume"])
+        
         return vote
+
+
+class MyPredictionsSerializer(serializers.ModelSerializer):
+    event_name = serializers.CharField(source='possible_result.event.event_name', read_only=True)
+    result = serializers.CharField(source='possible_result.result', read_only=True)
+
+    class Meta:
+        model = Vote
+        fields = ['id', 'event_name', 'result', 'token_staked', 'created_at']
