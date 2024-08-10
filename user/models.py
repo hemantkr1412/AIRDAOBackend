@@ -1,5 +1,5 @@
 from django.db import models
 
 
-class User(models.Model):
-    account = models.CharField(max_length=255)
+class Account(models.Model):
+    account = models.CharField(max_length=255, unique=True)

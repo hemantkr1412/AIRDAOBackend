@@ -2,7 +2,7 @@ from django.db import models
 import random
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from user.models import User
+from user.models import Account
 
 
 def avatarupload(instance, filename):
@@ -61,17 +61,13 @@ class PossibleResult(models.Model):
 
 
 class Vote(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     possible_result = models.ForeignKey(PossibleResult, on_delete=models.CASCADE)
     token_staked = models.PositiveIntegerField(null=True, blank=True)
     tx_hash = models.CharField(max_length=512, null=True, blank=True)
+    amount_rewarded = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = (
-            "user",
-            "possible_result",
-        )
 
     def __str__(self):
-        return f"Vote by {self.user} for {self.possible_result.result}"
+        return f"Vote by {self.account} for {self.possible_result.result}"

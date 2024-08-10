@@ -1,7 +1,7 @@
 from rest_framework import generics, pagination, status
 from rest_framework.response import Response
 from .models import Event, Vote, Category
-from user.models import User
+from user.models import Account
 from .serializers import (
     EventSerializer,
     VoteSerializer,
@@ -76,19 +76,17 @@ class MyPredictionsListView(generics.ListAPIView):
 
     def get_queryset(self):
         # Retrieve the wallet address from the request headers
-        wallet_address = self.request.headers.get("X-Wallet-Address")
+        wallet_address = self.request.query_params.get("wallet_address")
 
         if not wallet_address:
-            return (
-                Vote.objects.none()
-            )
-        user = User.objects.filter(account=wallet_address).first()
+            return Vote.objects.none()
 
-        if not user:
-            return (
-                Vote.objects.none()
-            ) 
-        return Vote.objects.filter(user=user)
+        account = Account.objects.filter(account=wallet_address).first()
+
+        if not account:
+            return Vote.objects.none()
+
+        return Vote.objects.filter(account=account)
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
