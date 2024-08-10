@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Category, Event, PossibleResult, Vote
-from user.models import User
-from django.db.models import F  
+from user.models import Account
+from django.db.models import F
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -45,56 +45,53 @@ class EventSerializer(serializers.ModelSerializer):
         return data
 
 
-class UserSerializer(serializers.ModelSerializer):
+class AccountSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["account"]
+        model = Account
+        fields = ["id","account"]
 
 
 class VoteSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    user_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(), source="user", write_only=True
+    account = serializers.PrimaryKeyRelatedField(
+        queryset=Account.objects.all()
+    )
+    possible_result = serializers.PrimaryKeyRelatedField(
+        queryset=PossibleResult.objects.all()
     )
 
     class Meta:
         model = Vote
-        fields = ["user", "user_id", "possible_result","token_staked", "tx_hash","created_at"]
-
-    def validate(self, data):
-        user = self.context["request"].user
-        possible_result = data["possible_result"]
-
-        # Check if the user has already voted for the possible_result
-        if Vote.objects.filter(user=user, possible_result=possible_result).exists():
-            raise serializers.ValidationError(
-                "You have already voted for this possible result."
-            )
-
-        # Assuming you have some validation for checking if the possible_result is valid
-        if not PossibleResult.objects.filter(id=possible_result.id).exists():
-            raise serializers.ValidationError("Invalid possible result.")
-
-        return data
+        fields = ["account", "possible_result", "token_staked", "tx_hash", "amount_rewarded"]
 
     def create(self, validated_data):
-        user = self.context["request"].user
         token_staked = validated_data.get("token_staked", 0)
         possible_result = validated_data["possible_result"]
-        vote = Vote.objects.create(user=user, **validated_data)
+        event = possible_result.event
+
+        # Check if token_staked meets the min_token_stake requirement
+        if token_staked < event.min_token_stake:
+            raise serializers.ValidationError(
+                f"Token stake must be at least {event.min_token_stake}."
+            )
+        vote = Vote.objects.create(**validated_data)
 
         # Increment the token volume of the related event
-        event = possible_result.event
-        event.token_volume = F("token_volume") + token_staked
-        event.save(update_fields=["token_volume"])
-        
+        if event.token_volume is None:
+            event.token_volume = 0
+        event.token_volume += token_staked
+        event.save(update_fields=['token_volume'])
+
         return vote
 
 
 class MyPredictionsSerializer(serializers.ModelSerializer):
-    event_name = serializers.CharField(source='possible_result.event.event_name', read_only=True)
-    result = serializers.CharField(source='possible_result.result', read_only=True)
+    event_name = serializers.CharField(
+        source="possible_result.event.event_name", read_only=True
+    )
+    result = serializers.CharField(source="possible_result.result", read_only=True)
+    amount_rewarded = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
 
     class Meta:
         model = Vote
-        fields = ['id', 'event_name', 'result', 'token_staked', 'created_at']
+        fields = ['id', 'event_name', 'result', 'token_staked', 'amount_rewarded', 'created_at']
