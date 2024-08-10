@@ -9,14 +9,8 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-<<<<<<< HEAD
-
-# import dj_database_url
-
-=======
 from .config import config
 import os
->>>>>>> adac0c9f3db82f35401610f7c370bf310686b551
 from pathlib import Path
 from storages.backends.s3boto3 import S3Boto3Storage
 
@@ -174,12 +168,6 @@ if config["IS_LOCAL"]:
     STATIC_ROOT = os.path.join(BASE_DIR, "media")
 
 
-<<<<<<< HEAD
-# STATIC_ROOT = BASE_DIR +"/staticfiles"
-
-# Default primary key field type
-=======
->>>>>>> adac0c9f3db82f35401610f7c370bf310686b551
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

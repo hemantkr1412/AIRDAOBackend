@@ -59,7 +59,7 @@ class VoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ["user", "user_id", "possible_result"]
+        fields = ["user", "user_id", "possible_result","token_staked", "tx_hash","created_at"]
 
     def validate(self, data):
         user = self.context["request"].user
