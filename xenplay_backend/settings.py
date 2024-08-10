@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+# import dj_database_url
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -18,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-lnn09z^c&7&r3do3@crgh$qjy#o8nf+)3c59b34ijyt$3@uw3u"
@@ -98,6 +101,7 @@ DATABASES = {
     }
 }
 
+# DATABASES["default"] = dj_database_url.parse("postgresql://xenplay_user:yn54ZHoWKIBprjtha2PWzpC1mhY2SZ1k@dpg-cq3t60ks1f4s73fm01i0-a.oregon-postgres.render.com/xenplay")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -136,6 +140,8 @@ TIME_ZONE = 'Asia/Kolkata'
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+
+# STATIC_ROOT = BASE_DIR +"/staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

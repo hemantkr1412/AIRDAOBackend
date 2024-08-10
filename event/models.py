@@ -49,7 +49,9 @@ class Event(models.Model):
     def market(self):
         now = timezone.now().date()
 
-        if self.start_date > now:
+        if self.start_date is None:
+            return "start date not set"
+        elif self.start_date > now:
             return "upcoming"
         elif self.start_date <= now <= self.end_date:
             return "active"
