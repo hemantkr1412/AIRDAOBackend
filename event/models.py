@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from user.models import User
 
+
 def avatarupload(instance, filename):
     file_extension = filename.split(".")[-1]
     new_file_name = str(random.randrange(1000, 1000000)) + "." + file_extension
@@ -23,18 +24,11 @@ class Event(models.Model):
     )
     event_name = models.CharField(max_length=255)
     avatar = models.ImageField(upload_to=avatarupload, null=True, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    resolution_date = models.DateField()
-    # market = models.CharField(
-    #     max_length=50,
-    #     choices=[
-    #         ("upcoming", "Upcoming Market"),
-    #         ("active", "Active Market"),
-    #         ("recent", "Recent Market"),
-    #     ],
-    #     default="upcoming",
-    # )
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    resolution_date = models.DateTimeField()
+    token_volume = models.PositiveIntegerField(default=0, null=True, blank=True)
+    min_token_stake = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
         return self.event_name
@@ -44,10 +38,10 @@ class Event(models.Model):
             raise ValidationError("End date should be after start date")
         if self.resolution_date <= self.end_date:
             raise ValidationError("Resolution date should be after end date")
-        
+
     @property
     def market(self):
-        now = timezone.now().date()
+        now = timezone.now()
 
         if self.start_date is None:
             return "start date not set"
@@ -69,10 +63,15 @@ class PossibleResult(models.Model):
 class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     possible_result = models.ForeignKey(PossibleResult, on_delete=models.CASCADE)
+    token_staked = models.PositiveIntegerField(null=True, blank=True)
+    tx_hash = models.CharField(max_length=512, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'possible_result',)
+        unique_together = (
+            "user",
+            "possible_result",
+        )
 
     def __str__(self):
         return f"Vote by {self.user} for {self.possible_result.result}"

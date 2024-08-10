@@ -1,1 +1,4 @@
-avatar      
+avatar 
+db.sqlite3   
+env
+/xenplay_backend/config.py  
