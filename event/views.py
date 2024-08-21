@@ -86,7 +86,7 @@ class MyPredictionsListView(generics.ListAPIView):
         if not account:
             return Vote.objects.none()
 
-        return Vote.objects.filter(account=account)
+        return Vote.objects.filter(account=account).order_by('-created_at')
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

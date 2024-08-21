@@ -17,6 +17,14 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+class PossibleResult(models.Model):
+    event = models.ForeignKey(
+        "Event", related_name="possible_results", on_delete=models.CASCADE
+    )
+    result = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.result
 
 class Event(models.Model):
     category = models.ForeignKey(
@@ -29,6 +37,9 @@ class Event(models.Model):
     resolution_date = models.DateTimeField()
     token_volume = models.PositiveIntegerField(default=0, null=True, blank=True)
     min_token_stake = models.PositiveIntegerField(default=0, null=True, blank=True)
+    final_result = models.ForeignKey(
+        PossibleResult, null=True, blank=True, on_delete=models.SET_NULL, related_name='events'
+    )
 
     def __str__(self):
         return self.event_name
@@ -53,11 +64,7 @@ class Event(models.Model):
             return "recent"
 
 
-class PossibleResult(models.Model):
-    event = models.ForeignKey(
-        "Event", related_name="possible_results", on_delete=models.CASCADE
-    )
-    result = models.CharField(max_length=255)
+
 
 
 class Vote(models.Model):
