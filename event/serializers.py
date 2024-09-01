@@ -89,36 +89,6 @@ class EventSerializer(serializers.ModelSerializer):
 
         return possible_results
 
-
-
-    # def get_event_votes(self, obj):
-    #     # Retrieve all votes related to the event via possible results
-    #     votes = Vote.objects.filter(possible_result__event=obj)
-        
-    #     # Segregate votes by possible_result and calculate the percentages
-    #     result_votes = defaultdict(list)
-    #     total_staked = 0
-
-    #     for vote in votes:
-    #         result_votes[vote.possible_result.id].append(VoteSerializer(vote).data)
-    #         total_staked += vote.token_staked
-
-    #     # Calculate the percentage for each possible_result
-    #     result_percentages = {}
-    #     for result_id, vote_list in result_votes.items():
-    #         total_for_result = sum(vote['token_staked'] for vote in vote_list)
-    #         percentage = (total_for_result / total_staked) * 100 if total_staked > 0 else 0
-    #         result_percentages[result_id] = {
-    #             'votes': vote_list,
-    #             'percentage': percentage
-    #         }
-
-    #     # Print the result for debugging
-    #     # print(result_percentages)
-
-    #     return result_percentages
-    
-
     def validate(self, data):
         if data["start_date"] >= data["end_date"]:
             raise serializers.ValidationError("End date should be after start date")
