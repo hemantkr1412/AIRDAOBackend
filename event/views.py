@@ -1,4 +1,5 @@
 from rest_framework import generics, pagination, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Event, Vote, Category
 from user.models import Account
@@ -8,6 +9,7 @@ from .serializers import (
     CategorySerializer,
     MyPredictionsSerializer,
 )
+from event.contract_call import claim_amount
 
 
 class CategoryListView(generics.ListAPIView):
@@ -98,3 +100,28 @@ class MyPredictionsListView(generics.ListAPIView):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+@api_view(['POST'])
+def claim_reward(request):
+    try:
+        vote_id = request.data.get('vote_id')
+        vote = Vote.objects.get(id=vote_id)
+
+        if vote.amount_rewarded is None or vote.amount_rewarded == 0:
+            return Response({"error": "No reward available to claim"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Call the claim_amount function to interact with the smart contract
+        tx_hash = claim_amount(float(vote.amount_rewarded), vote.account.account)
+
+        if tx_hash:
+            vote.tx_hash = tx_hash
+            vote.save(update_fields=["tx_hash"])
+            return Response({"message": "Reward claimed successfully", "tx_hash": tx_hash}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Failed to claim the reward"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    except Vote.DoesNotExist:
+        return Response({"error": "Vote not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
