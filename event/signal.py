@@ -43,7 +43,7 @@ def trigger_create_event(sender, instance, created, **kwargs):
 def handle_event_creation(event_instance):
     outcomes = [result.result for result in event_instance.possible_results.all()]
     if outcomes:  # Ensure outcomes are not empty
-        result = create_event(event_instance.event_name, outcomes)
+        result = create_event(event_instance.id, event_instance.event_name, outcomes)
         tx_hash = result["tx_hash"]
         event_id = result["event_id"]
         print("tx_hash", tx_hash)

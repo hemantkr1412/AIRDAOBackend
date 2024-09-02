@@ -105,6 +105,7 @@ class MyPredictionsListView(generics.ListAPIView):
 class WinningVotesListView(generics.ListAPIView):
     serializer_class = MyPredictionsSerializer
     def get_queryset(self):
+<<<<<<< HEAD
         account_address = self.request.query_params.get('wallet_address')
         if not account_address:
             raise ValidationError("The 'account' query parameter is required.")
@@ -112,10 +113,27 @@ class WinningVotesListView(generics.ListAPIView):
         if not account:
             raise ValidationError("Account not found.")
         votes = Vote.objects.filter(account=account).order_by('-created_at')
+=======
+        account_address = self.request.query_params.get('account')
+
+        if not account_address:
+            raise ValidationError("The 'account' query parameter is required.")
+
+        account = Account.objects.filter(account=account_address).first()
+        if not account:
+            raise ValidationError("Account not found.")
+
+        votes = Vote.objects.filter(account=account).order_by('-created_at')
+
+>>>>>>> 1f1857ef33e077c83f36836ff8af5191ec2a299d
         # Filter out votes that are not winning
         winning_votes = [
             vote for vote in votes if vote.possible_result == vote.possible_result.event.final_result
         ]
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1f1857ef33e077c83f36836ff8af5191ec2a299d
         return winning_votes
 
 
@@ -123,7 +141,8 @@ class WinningVotesListView(generics.ListAPIView):
 def claim_reward(request):
     try:
         vote_id = request.data.get('vote_id')
-        vote = Vote.objects.get(id=vote_id)
+        account_address = request.data.get('account')
+        vote = Vote.objects.get(id=vote_id, account__account=account_address)
 
         if vote.amount_rewarded is None or vote.amount_rewarded == 0:
             return Response({"error": "No reward available to claim"}, status=status.HTTP_400_BAD_REQUEST)

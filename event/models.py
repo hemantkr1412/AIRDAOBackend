@@ -47,7 +47,7 @@ class Event(models.Model):
         related_name="events",
     )
     platform_share = models.DecimalField(max_digits=15, decimal_places=2, default=0)
-    event_id = models.IntegerField(blank=True, null=True)
+    burn_share = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     create_event_tx_receipt = models.CharField(max_length=255, blank=True, null=True)
     update_event_tx_receipt = models.CharField(max_length=255, blank=True, null=True)
     close_event_tx_receipt = models.CharField(max_length=255, null=True, blank=True)
@@ -77,8 +77,14 @@ class Event(models.Model):
     def calculate_winner_distribution(self):
         # Calculate the total amount to distribute
         total_staked = self.token_volume
-        self.platform_share = total_staked * Decimal("0.10")
-        distribution_amount = total_staked - self.platform_share
+        # Calculate the platform share (7%) and burn share (3%)
+        self.platform_share = total_staked * Decimal("0.07")
+        self.burn_share = total_staked * Decimal("0.03")
+        # Calculate the amount to distribute to winners
+        distribution_amount = total_staked - self.platform_share - self.burn_share
+
+        # Save the platform share and burn share to the database
+        self.save(update_fields=["platform_share", "burn_share"])
         print("calling this")
 
         # Get all winning votes
@@ -99,14 +105,6 @@ class Event(models.Model):
             vote.save(update_fields=["amount_rewarded"])
 
         return distribution_amount, self.platform_share
-
-    # def resolve_event(self, final_result):
-    #     self.final_result = final_result
-    #     self.save(update_fields=["final_result"])
-    #     # Calculate and distribute rewards
-    #     distribution_amount, platform_share = self.calculate_winner_distribution()
-
-    #     return distribution_amount, platform_share
 
 
 class Vote(models.Model):

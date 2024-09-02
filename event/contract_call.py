@@ -20,7 +20,7 @@ def get_contract():
     return web3.eth.contract(config["contract_address"], abi=abi)
 
 
-def create_event(title, outcomes):
+def create_event(eventId, title, outcomes):
 
     if not title or not outcomes:
         return Response({"error": "Title and outcomes are required."}, status=400)
@@ -29,7 +29,7 @@ def create_event(title, outcomes):
     contract = get_contract()
     w3 = get_web3()
     try:
-        transaction = contract.functions.createEvent(title, outcomes).build_transaction(
+        transaction = contract.functions.createEvent(eventId, title, outcomes).build_transaction(
             {
                 "from": account,
                 "nonce": w3.eth.get_transaction_count(account),
