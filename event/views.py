@@ -10,7 +10,7 @@ from .serializers import (
     MyPredictionsSerializer,
 )
 from event.contract_call import claim_amount
-
+from rest_framework.exceptions import ValidationError
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -106,11 +106,21 @@ class WinningVotesListView(generics.ListAPIView):
     serializer_class = MyPredictionsSerializer
 
     def get_queryset(self):
-        account_id = self.request.user.id
-        votes = Vote.objects.filter(account__id=account_id).order_by('-created_at')
+        account_address = self.request.query_params.get('account')
+
+        if not account_address:
+            raise ValidationError("The 'account' query parameter is required.")
+
+        account = Account.objects.filter(account=account_address).first()
+        if not account:
+            raise ValidationError("Account not found.")
+
+        votes = Vote.objects.filter(account=account).order_by('-created_at')
 
         # Filter out votes that are not winning
-        winning_votes = [vote for vote in votes if vote.possible_result == vote.possible_result.event.final_result]
+        winning_votes = [
+            vote for vote in votes if vote.possible_result == vote.possible_result.event.final_result
+        ]
 
         return winning_votes
 
@@ -119,7 +129,8 @@ class WinningVotesListView(generics.ListAPIView):
 def claim_reward(request):
     try:
         vote_id = request.data.get('vote_id')
-        vote = Vote.objects.get(id=vote_id)
+        account_address = request.data.get('account')
+        vote = Vote.objects.get(id=vote_id, account__account=account_address)
 
         if vote.amount_rewarded is None or vote.amount_rewarded == 0:
             return Response({"error": "No reward available to claim"}, status=status.HTTP_400_BAD_REQUEST)
