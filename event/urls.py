@@ -8,6 +8,7 @@ from .views import (
     VoteCreateView,
     VoteDetailView,
     MyPredictionsListView,
+    WinningVotesListView,
     claim_reward,
 )
 from .contract_call import (
@@ -31,6 +32,7 @@ urlpatterns = [
     path("votes/create/", VoteCreateView.as_view(), name="vote-create"),
     path("votes/<int:pk>/", VoteDetailView.as_view(), name="vote-detail"),
     path("my-predictions/", MyPredictionsListView.as_view(), name="my-predicitons"),
+    path('winning-votes/', WinningVotesListView.as_view(), name='winning-votes'),
     path("claim-reward/", claim_reward, name="claim-reward"),
     # path("create-event/", create_event_view, name="create_event"),
     # path("update_event/<int:event_id>/", update_event),

@@ -102,6 +102,19 @@ class MyPredictionsListView(generics.ListAPIView):
         return Response(serializer.data)
 
 
+class WinningVotesListView(generics.ListAPIView):
+    serializer_class = MyPredictionsSerializer
+
+    def get_queryset(self):
+        account_id = self.request.user.id
+        votes = Vote.objects.filter(account__id=account_id).order_by('-created_at')
+
+        # Filter out votes that are not winning
+        winning_votes = [vote for vote in votes if vote.possible_result == vote.possible_result.event.final_result]
+
+        return winning_votes
+
+
 @api_view(['POST'])
 def claim_reward(request):
     try:
