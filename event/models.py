@@ -94,7 +94,7 @@ class Event(models.Model):
         # Distribute the tokens among the winners based on their contribution
         for vote in winning_votes:
             contribution_percentage = vote.token_staked / total_winning_staked
-            reward_amount = distribution_amount * contribution_percentage
+            reward_amount = distribution_amount * Decimal(contribution_percentage)
             vote.amount_rewarded = reward_amount
             vote.save(update_fields=["amount_rewarded"])
 

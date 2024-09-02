@@ -10,7 +10,7 @@ from .serializers import (
     MyPredictionsSerializer,
 )
 from event.contract_call import claim_amount
-
+from rest_framework.exceptions import ValidationError
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -104,14 +104,18 @@ class MyPredictionsListView(generics.ListAPIView):
 
 class WinningVotesListView(generics.ListAPIView):
     serializer_class = MyPredictionsSerializer
-
     def get_queryset(self):
-        account_id = self.request.user.id
-        votes = Vote.objects.filter(account__id=account_id).order_by('-created_at')
-
+        account_address = self.request.query_params.get('wallet_address')
+        if not account_address:
+            raise ValidationError("The 'account' query parameter is required.")
+        account = Account.objects.filter(account=account_address).first()
+        if not account:
+            raise ValidationError("Account not found.")
+        votes = Vote.objects.filter(account=account).order_by('-created_at')
         # Filter out votes that are not winning
-        winning_votes = [vote for vote in votes if vote.possible_result == vote.possible_result.event.final_result]
-
+        winning_votes = [
+            vote for vote in votes if vote.possible_result == vote.possible_result.event.final_result
+        ]
         return winning_votes
 
 
