@@ -58,7 +58,12 @@ def create_event(eventId, title, outcomes):
         #     print(
         #         f"Event received: Event ID: {event['args']['eventId']}, Title: {event['args']['title']}, Outcomes: {event['args']['outcomes']}, IsActive: {event['args']['isActive']}"
         #     )
+<<<<<<< HEAD
         return  tx_hash
+=======
+        # return {"tx_hash": tx_hash}
+        return tx_hash
+>>>>>>> 5a98d5069fb74a5f0831f30aa5580a1e0dde6837
     except Exception as e:
         print("exception raise while calling create_event ", e)
 
@@ -82,8 +87,14 @@ def update_event(request, event_id):
     txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
     tx_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     print(tx_receipt)
+<<<<<<< HEAD
     # return tx_receipt
     return Response({"transaction_hash": dict(tx_receipt)})
+=======
+    tx_hash = tx_receipt["transactionHash"].hex()
+    # return tx_hash
+    return Response({"transaction_hash": tx_hash})
+>>>>>>> 5a98d5069fb74a5f0831f30aa5580a1e0dde6837
 
 
 def close_event(event_id, outcome_id):
