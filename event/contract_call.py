@@ -51,21 +51,22 @@ def create_event(eventId, title, outcomes):
         # events = event_filter.get_new_entries()
         # print("events",events)
         # event_id = events[0]['args']['eventId']
-        event_id = contract.functions.eventCount().call() - 1
-        print(event_id)
+        # event_id = contract.functions.eventCount().call() - 1
+        # print(event_id)
         # for event in events:
         #     event_id = event["args"]["eventId"]
         #     print(
         #         f"Event received: Event ID: {event['args']['eventId']}, Title: {event['args']['title']}, Outcomes: {event['args']['outcomes']}, IsActive: {event['args']['isActive']}"
         #     )
-        return {"tx_hash": tx_hash, "event_id": event_id}
+        # return {"tx_hash": tx_hash}
+        return tx_hash
     except Exception as e:
         print("exception raise while calling create_event ", e)
 
 
-# @api_view(["POST"])
-# def update_event(request, event_id):
-def update_event(event_id):
+@api_view(["POST"])
+def update_event(request, event_id):
+# def update_event(event_id):
     contract = get_contract()
     web3 = get_web3()
     account = config["public_key"]
@@ -82,8 +83,9 @@ def update_event(event_id):
     txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
     tx_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     print(tx_receipt)
-    return tx_receipt
-    # return Response({"transaction_hash": dict(tx_receipt)})
+    tx_hash = tx_receipt["transactionHash"].hex()
+    # return tx_hash
+    return Response({"transaction_hash": tx_hash})
 
 
 def close_event(event_id, outcome_id):

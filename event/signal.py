@@ -43,14 +43,11 @@ def trigger_create_event(sender, instance, created, **kwargs):
 def handle_event_creation(event_instance):
     outcomes = [result.result for result in event_instance.possible_results.all()]
     if outcomes:  # Ensure outcomes are not empty
-        result = create_event(event_instance.id, event_instance.event_name, outcomes)
-        tx_hash = result["tx_hash"]
-        event_id = result["event_id"]
-        print("tx_hash", tx_hash)
-        print("event_id", event_id)
-        event_instance.create_event_tx_receipt = tx_hash
-        event_instance.event_id = event_id
-        event_instance.save(update_fields=["create_event_tx_receipt", "event_id"])
+        result = create_event(
+            int(event_instance.id ), event_instance.event_name, outcomes
+        )
+        event_instance.create_event_tx_receipt = result
+        event_instance.save(update_fields=["create_event_tx_receipt"])
 
 
 def handle_event_resolution(event_instance):
@@ -59,6 +56,7 @@ def handle_event_resolution(event_instance):
 
     # Set the flag to prevent recursion
     event_instance._processing_final_result = True
+    event_instance.calculate_winner_distribution()
 
     # Retrieve all possible outcomes for the event
     possible_outcomes = list(event_instance.possible_results.all())
@@ -71,7 +69,7 @@ def handle_event_resolution(event_instance):
         raise ValueError("Final result not found among possible outcomes.")
 
     print("index", final_outcome_index)
-    tx_hash = close_event(event_instance.event_id, final_outcome_index)
+    tx_hash = close_event(event_instance.id, final_outcome_index)
     print("Resolution transaction hash:", tx_hash)
 
     event_instance.close_event_tx_receipt = tx_hash
@@ -81,7 +79,5 @@ def handle_event_resolution(event_instance):
 
 @receiver(post_save, sender=Event)
 def trigger_resolve_event(sender, instance, **kwargs):
-    if instance.final_result is not None and instance.event_id:
-        instance.calculate_winner_distribution()
+    if instance.final_result is not None and instance.id:
         transaction.on_commit(lambda: handle_event_resolution(instance))
-
