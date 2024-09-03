@@ -70,7 +70,7 @@ class EventSerializer(serializers.ModelSerializer):
             "resolution_date",
             "token_volume",
             "possible_results",
-            "event_id"
+          
         ]
        
 

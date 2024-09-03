@@ -13,7 +13,7 @@ from .views import (
 )
 from .contract_call import (
     # create_event_view,
-    # update_event,
+    update_event,
     # close_event,
     claim_amount,
     check_contract_balance,
@@ -35,7 +35,7 @@ urlpatterns = [
     path('winning-votes/', WinningVotesListView.as_view(), name='winning-votes'),
     path("claim-reward/", claim_reward, name="claim-reward"),
     # path("create-event/", create_event_view, name="create_event"),
-    # path("update_event/<int:event_id>/", update_event),
+    path("update_event/<int:event_id>/", update_event),
     # path("close_event/<int:event_id>/<int:outcome_id>/", close_event),
     # path("claim_amount/", claim_amount),
     path("check_contract_balance/", check_contract_balance),

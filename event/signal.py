@@ -44,13 +44,13 @@ def handle_event_creation(event_instance):
     outcomes = [result.result for result in event_instance.possible_results.all()]
     if outcomes:  # Ensure outcomes are not empty
         result = create_event(event_instance.id, event_instance.event_name, outcomes)
-        tx_hash = result["tx_hash"]
-        event_id = result["event_id"]
-        print("tx_hash", tx_hash)
-        print("event_id", event_id)
-        event_instance.create_event_tx_receipt = tx_hash
-        event_instance.event_id = event_id
-        event_instance.save(update_fields=["create_event_tx_receipt", "event_id"])
+        # tx_hash = result["tx_hash"]
+        # event_id = result["event_id"]
+        # print("tx_hash", tx_hash)
+        # print("event_id", event_id)
+        event_instance.create_event_tx_receipt = result
+        # event_instance.event_id = event_id
+        event_instance.save(update_fields=["create_event_tx_receipt"])
 
 
 def handle_event_resolution(event_instance):
@@ -81,7 +81,7 @@ def handle_event_resolution(event_instance):
 
 @receiver(post_save, sender=Event)
 def trigger_resolve_event(sender, instance, **kwargs):
-    if instance.final_result is not None and instance.event_id:
+    if instance.final_result is not None and instance.id:
         instance.calculate_winner_distribution()
         transaction.on_commit(lambda: handle_event_resolution(instance))
 
