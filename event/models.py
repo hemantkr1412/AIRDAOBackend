@@ -90,6 +90,15 @@ class Event(models.Model):
         # Get all winning votes
         winning_votes = Vote.objects.filter(possible_result=self.final_result)
 
+
+        #Getting all lossing votes
+        losing_votes = Vote.objects.exclude(possible_result=self.final_result)
+
+        # Loop through each losing vote and update the amount_rewarded
+        for vote in losing_votes:
+            vote.amount_rewarded = 0
+            vote.save(update_fields=["amount_rewarded"])
+
         # Calculate the total tokens staked on the winning result
         total_winning_staked = (
             winning_votes.aggregate(total=models.Sum("token_staked"))["total"] or 0
@@ -100,7 +109,7 @@ class Event(models.Model):
         # Distribute the tokens among the winners based on their contribution
         for vote in winning_votes:
             contribution_percentage = vote.token_staked / total_winning_staked
-            reward_amount = distribution_amount * contribution_percentage
+            reward_amount = distribution_amount * Decimal(contribution_percentage)
             vote.amount_rewarded = reward_amount
             vote.save(update_fields=["amount_rewarded"])
 
@@ -114,6 +123,8 @@ class Vote(models.Model):
     tx_hash = models.CharField(max_length=512, null=True, blank=True)
     amount_rewarded = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_claimed = models.BooleanField(default=False)
+
 
 
     def __str__(self):

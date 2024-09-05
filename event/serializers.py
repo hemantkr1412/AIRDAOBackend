@@ -70,7 +70,9 @@ class EventSerializer(serializers.ModelSerializer):
             "resolution_date",
             "token_volume",
             "possible_results",
+          
         ]
+       
 
 
     def get_possible_results(self, obj):
@@ -149,4 +151,4 @@ class MyPredictionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ['id','event_id', 'event_name', 'result', 'token_staked', 'amount_rewarded', 'created_at']
+        fields = ['id','tx_hash','event_id', 'event_name', 'result', 'token_staked', 'amount_rewarded', 'created_at','is_claimed']
