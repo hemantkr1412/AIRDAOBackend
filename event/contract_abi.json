@@ -4,6 +4,85 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amountToSend",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address payable",
+          "name": "winnerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "claimAmount",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "eventId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "outcomeId",
+          "type": "uint256"
+        }
+      ],
+      "name": "closeEvent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "eventId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "string[]",
+          "name": "outcomes",
+          "type": "string[]"
+        }
+      ],
+      "name": "createEvent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "admn",
           "type": "address"
         }
@@ -188,12 +267,30 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "eventId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "outcomeId",
+          "type": "uint256"
         }
       ],
-      "name": "changeOwner",
+      "name": "submitPrediction",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "eventId",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateEvent",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -209,54 +306,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "claimAll",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "outcomeId",
-          "type": "uint256"
-        }
-      ],
-      "name": "closeEvent",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "string",
-          "name": "title",
-          "type": "string"
-        },
-        {
-          "internalType": "string[]",
-          "name": "outcomes",
-          "type": "string[]"
-        }
-      ],
-      "name": "createEvent",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -360,24 +409,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "outcomeId",
-          "type": "uint256"
-        }
-      ],
-      "name": "submitPrediction",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "totalAmountLocked",
       "outputs": [
@@ -388,37 +419,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "eventId",
-          "type": "uint256"
-        }
-      ],
-      "name": "updateEvent",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amountToSend",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address payable",
-          "name": "receiverAddr",
-          "type": "address"
-        }
-      ],
-      "name": "withdrawAmount",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
