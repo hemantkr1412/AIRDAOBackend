@@ -17,17 +17,22 @@ class PossibleResultSerializer(serializers.ModelSerializer):
         model = PossibleResult
         fields = ["id", "result"]
 
+
 class VoteSerializer(serializers.ModelSerializer):
-    account = serializers.PrimaryKeyRelatedField(
-        queryset=Account.objects.all()
-    )
+    account = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all())
     possible_result = serializers.PrimaryKeyRelatedField(
         queryset=PossibleResult.objects.all()
     )
 
     class Meta:
         model = Vote
-        fields = ["account", "possible_result", "token_staked", "tx_hash", "amount_rewarded"]
+        fields = [
+            "account",
+            "possible_result",
+            "token_staked",
+            "tx_hash",
+            "amount_rewarded",
+        ]
 
     def create(self, validated_data):
         token_staked = validated_data.get("token_staked", 0)
@@ -45,17 +50,14 @@ class VoteSerializer(serializers.ModelSerializer):
         if event.token_volume is None:
             event.token_volume = 0
         event.token_volume += token_staked
-        event.save(update_fields=['token_volume'])
+        event.save(update_fields=["token_volume"])
 
         return vote
 
 
 class EventSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
-    # possible_results = PossibleResultSerializer(many=True, read_only=True)
-    possible_results = serializers.SerializerMethodField() 
-    # event_votes = serializers.SerializerMethodField()
-    # print(event_votes)
+    possible_results = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -70,24 +72,35 @@ class EventSerializer(serializers.ModelSerializer):
             "resolution_date",
             "token_volume",
             "possible_results",
-          
         ]
-       
-
 
     def get_possible_results(self, obj):
         # Get the serialized possible results
-        possible_results = PossibleResultSerializer(obj.possible_results.all(), many=True).data
+        possible_results = PossibleResultSerializer(
+            obj.possible_results.all(), many=True
+        ).data
 
         # Calculate the total tokens staked for the event
-        total_staked = Vote.objects.filter(possible_result__event=obj).aggregate(total=models.Sum('token_staked'))['total'] or 0
+        total_staked = (
+            Vote.objects.filter(possible_result__event=obj).aggregate(
+                total=models.Sum("token_staked")
+            )["total"]
+            or 0
+        )
 
         # Calculate and add percentage to each possible result
         for result in possible_results:
-            result_id = result['id']
-            total_for_result = Vote.objects.filter(possible_result__id=result_id).aggregate(total=models.Sum('token_staked'))['total'] or 0
-            percentage = (total_for_result / total_staked) * 100 if total_staked > 0 else 0
-            result['percentage'] = round(percentage, 2)  # Add the percentage field
+            result_id = result["id"]
+            total_for_result = (
+                Vote.objects.filter(possible_result__id=result_id).aggregate(
+                    total=models.Sum("token_staked")
+                )["total"]
+                or 0
+            )
+            percentage = (
+                (total_for_result / total_staked) * 100 if total_staked > 0 else 0
+            )
+            result["percentage"] = round(percentage, 2)  # Add the percentage field
 
         return possible_results
 
@@ -104,20 +117,24 @@ class EventSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ["id","account"]
+        fields = ["id", "account"]
 
 
 class VoteSerializer(serializers.ModelSerializer):
-    account = serializers.PrimaryKeyRelatedField(
-        queryset=Account.objects.all()
-    )
+    account = serializers.PrimaryKeyRelatedField(queryset=Account.objects.all())
     possible_result = serializers.PrimaryKeyRelatedField(
         queryset=PossibleResult.objects.all()
     )
 
     class Meta:
         model = Vote
-        fields = ["account", "possible_result", "token_staked", "tx_hash", "amount_rewarded"]
+        fields = [
+            "account",
+            "possible_result",
+            "token_staked",
+            "tx_hash",
+            "amount_rewarded",
+        ]
 
     def create(self, validated_data):
         token_staked = validated_data.get("token_staked", 0)
@@ -135,20 +152,32 @@ class VoteSerializer(serializers.ModelSerializer):
         if event.token_volume is None:
             event.token_volume = 0
         event.token_volume += token_staked
-        event.save(update_fields=['token_volume'])
+        event.save(update_fields=["token_volume"])
 
         return vote
 
 
 class MyPredictionsSerializer(serializers.ModelSerializer):
-    event_id = serializers.CharField(source="possible_result.event.id",read_only=True)
+    event_id = serializers.CharField(source="possible_result.event.id", read_only=True)
     event_name = serializers.CharField(
         source="possible_result.event.event_name", read_only=True
     )
     result = serializers.CharField(source="possible_result.result", read_only=True)
-    amount_rewarded = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    amount_rewarded = serializers.DecimalField(
+        max_digits=10, decimal_places=2, read_only=True
+    )
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
 
     class Meta:
         model = Vote
-        fields = ['id','tx_hash','event_id', 'event_name', 'result', 'token_staked', 'amount_rewarded', 'created_at','is_claimed']
+        fields = [
+            "id",
+            "tx_hash",
+            "event_id",
+            "event_name",
+            "result",
+            "token_staked",
+            "amount_rewarded",
+            "created_at",
+            "is_claimed",
+        ]

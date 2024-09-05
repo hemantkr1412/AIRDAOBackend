@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from user.models import Account
 from decimal import Decimal
-from event.contract_call import create_event, update_event, close_event
 
 
 def avatarupload(instance, filename):
@@ -49,7 +48,6 @@ class Event(models.Model):
     platform_share = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     burn_share = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     create_event_tx_receipt = models.CharField(max_length=255, blank=True, null=True)
-    update_event_tx_receipt = models.CharField(max_length=255, blank=True, null=True)
     close_event_tx_receipt = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
@@ -85,7 +83,6 @@ class Event(models.Model):
 
         # Save the platform share and burn share to the database
         self.save(update_fields=["platform_share", "burn_share"])
-        print("calling this")
 
         # Get all winning votes
         winning_votes = Vote.objects.filter(possible_result=self.final_result)

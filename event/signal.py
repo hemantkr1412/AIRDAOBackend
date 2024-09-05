@@ -60,17 +60,13 @@ def handle_event_resolution(event_instance):
 
     # Retrieve all possible outcomes for the event
     possible_outcomes = list(event_instance.possible_results.all())
-    print("possible", possible_outcomes)
 
     # Find the final result's index among the possible outcomes
     try:
         final_outcome_index = possible_outcomes.index(event_instance.final_result)
     except ValueError:
         raise ValueError("Final result not found among possible outcomes.")
-
-    print("index", final_outcome_index)
     tx_hash = close_event(event_instance.id, final_outcome_index)
-    print("Resolution transaction hash:", tx_hash)
 
     event_instance.close_event_tx_receipt = tx_hash
     event_instance.save(update_fields=["close_event_tx_receipt"])

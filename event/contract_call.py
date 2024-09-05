@@ -94,9 +94,6 @@ def close_event(event_id, outcome_id):
     account = config["public_key"]
     private_key = config["private_key"]
     nonce = web3.eth.get_transaction_count(account)
-    # print("calling")
-    # print("event_id", event_id)
-    # print("outcome", outcome_id)
     try:
         # Simulate the transaction to catch errors before sending
         contract.functions.closeEvent(event_id, outcome_id).call({"from": account})
@@ -123,21 +120,13 @@ def close_event(event_id, outcome_id):
 
 
 def claim_amount(amount, address):
-    print("Step 4")
     winner_address = Web3.to_checksum_address(address)
-    print(winner_address)
     contract = get_contract()
     web3 = get_web3()
     account = config["public_key"]
     private_key = config["private_key"]
-    print("Step 5")
     nonce = web3.eth.get_transaction_count(account)
-    print("Step 6")
     eth_ammount =  amount * (10 ** 18)
-    print("Step 7")
-    print(eth_ammount)
-    print("Step 8")
-    print(int(eth_ammount))
     try:
         transaction = contract.functions.withdrawAmount(
             int(eth_ammount), winner_address
@@ -145,29 +134,13 @@ def claim_amount(amount, address):
             {
                 "nonce": nonce,
                 "gasPrice": web3.eth.gas_price,
-                # "gas":700000,
                 "from": account,
             }
         )
-        
-        # transaction = contract.functions.claimAll().build_transaction(
-        #     {
-        #         "nonce": nonce,
-        #         "gasPrice": web3.eth.gas_price,
-        #         "from": account,
-        #     }
-        # )
-
-        # gas_estimate = contract.functions.claimAmount( amount, winner_address ).estimate_gas( {"from": account} )
-        # transaction['gas'] = gas_estimate
         signed_txn = web3.eth.account.sign_transaction(transaction, private_key)
-        print(signed_txn)
         txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
-        print(txn_hash)
         tx_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
-        print(tx_receipt.logs)
         tx_hash = tx_receipt["transactionHash"].hex()
-        print(tx_hash)
         return tx_hash
     except Exception as e:
         print("Transaction failed:", e)

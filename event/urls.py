@@ -9,6 +9,7 @@ from .views import (
     VoteDetailView,
     MyPredictionsListView,
     WinningVotesListView,
+    KPIView,
     claim_reward,
 )
 from .contract_call import (
@@ -46,4 +47,5 @@ urlpatterns = [
         get_user_prediction,
     ),
     path("get_owner/", get_owner),
+    path('kpi/', KPIView.as_view(), name='kpi'),
 ]
