@@ -151,4 +151,4 @@ class MyPredictionsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ['id','event_id', 'event_name', 'result', 'token_staked', 'amount_rewarded', 'created_at']
+        fields = ['id','tx_hash','event_id', 'event_name', 'result', 'token_staked', 'amount_rewarded', 'created_at','is_claimed']

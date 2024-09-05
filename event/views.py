@@ -105,7 +105,7 @@ class MyPredictionsListView(generics.ListAPIView):
 class WinningVotesListView(generics.ListAPIView):
     serializer_class = MyPredictionsSerializer
     def get_queryset(self):
-        account_address = self.request.query_params.get('account')
+        account_address = self.request.query_params.get('wallet_address')
 
         if not account_address:
             raise ValidationError("The 'account' query parameter is required.")
@@ -128,17 +128,28 @@ def claim_reward(request):
     try:
         vote_id = request.data.get('vote_id')
         account_address = request.data.get('account')
+        print(vote_id)
+        print(account_address)
         vote = Vote.objects.get(id=vote_id, account__account=account_address)
+        print("Step 1")
+        print(vote)
+
+
+        # First layer security check:
+        if vote.is_claimed:
+             return Response({"error": "Already claimed"}, status=status.HTTP_400_BAD_REQUEST)
+
 
         if vote.amount_rewarded is None or vote.amount_rewarded == 0:
             return Response({"error": "No reward available to claim"}, status=status.HTTP_400_BAD_REQUEST)
-
+        print("Step 2")
         # Call the claim_amount function to interact with the smart contract
-        tx_hash = claim_amount(float(vote.amount_rewarded), vote.account.account)
-
+        print("Step 3")
+        tx_hash = claim_amount(vote.amount_rewarded, vote.account.account)
         if tx_hash:
             vote.tx_hash = tx_hash
-            vote.save(update_fields=["tx_hash"])
+            vote.is_claimed=True
+            vote.save(update_fields=["tx_hash","is_claimed"])
             return Response({"message": "Reward claimed successfully", "tx_hash": tx_hash}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Failed to claim the reward"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

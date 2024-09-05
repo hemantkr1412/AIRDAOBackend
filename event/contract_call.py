@@ -58,12 +58,8 @@ def create_event(eventId, title, outcomes):
         #     print(
         #         f"Event received: Event ID: {event['args']['eventId']}, Title: {event['args']['title']}, Outcomes: {event['args']['outcomes']}, IsActive: {event['args']['isActive']}"
         #     )
-<<<<<<< HEAD
-        return  tx_hash
-=======
         # return {"tx_hash": tx_hash}
         return tx_hash
->>>>>>> 5a98d5069fb74a5f0831f30aa5580a1e0dde6837
     except Exception as e:
         print("exception raise while calling create_event ", e)
 
@@ -87,14 +83,9 @@ def update_event(request, event_id):
     txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
     tx_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
     print(tx_receipt)
-<<<<<<< HEAD
-    # return tx_receipt
-    return Response({"transaction_hash": dict(tx_receipt)})
-=======
     tx_hash = tx_receipt["transactionHash"].hex()
     # return tx_hash
     return Response({"transaction_hash": tx_hash})
->>>>>>> 5a98d5069fb74a5f0831f30aa5580a1e0dde6837
 
 
 def close_event(event_id, outcome_id):
@@ -132,25 +123,49 @@ def close_event(event_id, outcome_id):
 
 
 def claim_amount(amount, address):
+    print("Step 4")
     winner_address = Web3.to_checksum_address(address)
+    print(winner_address)
     contract = get_contract()
     web3 = get_web3()
     account = config["public_key"]
     private_key = config["private_key"]
+    print("Step 5")
     nonce = web3.eth.get_transaction_count(account)
+    print("Step 6")
+    eth_ammount =  amount * (10 ** 18)
+    print("Step 7")
+    print(eth_ammount)
+    print("Step 8")
+    print(int(eth_ammount))
     try:
-        transaction = contract.functions.claimAmount(
-            amount, winner_address
+        transaction = contract.functions.withdrawAmount(
+            int(eth_ammount), winner_address
         ).build_transaction(
             {
                 "nonce": nonce,
                 "gasPrice": web3.eth.gas_price,
+                # "gas":700000,
                 "from": account,
             }
         )
+        
+        # transaction = contract.functions.claimAll().build_transaction(
+        #     {
+        #         "nonce": nonce,
+        #         "gasPrice": web3.eth.gas_price,
+        #         "from": account,
+        #     }
+        # )
+
+        # gas_estimate = contract.functions.claimAmount( amount, winner_address ).estimate_gas( {"from": account} )
+        # transaction['gas'] = gas_estimate
         signed_txn = web3.eth.account.sign_transaction(transaction, private_key)
+        print(signed_txn)
         txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
+        print(txn_hash)
         tx_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
+        print(tx_receipt.logs)
         tx_hash = tx_receipt["transactionHash"].hex()
         print(tx_hash)
         return tx_hash
