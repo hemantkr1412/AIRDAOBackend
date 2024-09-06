@@ -177,27 +177,30 @@ def claim_reward(request):
 class KPIView(APIView):
     COINGECKO_API_URL = "https://api.coingecko.com/api/v3/simple/price"
     AMB_TOKEN_ID = "amber"
-
     def get_token_price(self):
         """Fetch AMB token price in USD from CoinGecko API."""
         params = {"ids": self.AMB_TOKEN_ID, "vs_currencies": "usd"}
+        API_KEY = "CG-rv9LZaiQs56cYhmh2jShDDuQ"
+        headers = {"Authorization": f"Bearer {API_KEY}"}
         try:
-            response = requests.get(self.COINGECKO_API_URL, params=params)
+            response = requests.get(
+                self.COINGECKO_API_URL, params=params, headers=headers
+            )
             response_data = response.json()
+            print(response_data)
             return Decimal(response_data[self.AMB_TOKEN_ID]["usd"])
         except (requests.RequestException, KeyError, ValueError) as e:
             print("Exception raised while fetching token price:", e)
             return None
-
     def get(self, request):
         # Fetch the AMB token price in USD
         amb_token_price = self.get_token_price()
+        print(amb_token_price)
         if amb_token_price is None:
             return Response(
                 {"error": "Failed to fetch AMB token price"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
         # Calculate the KPIs
         total_volume_locked = (
             Event.objects.aggregate(total_volume=Sum("token_volume"))["total_volume"]
@@ -209,17 +212,31 @@ class KPIView(APIView):
         total_burn_fee = (
             Event.objects.aggregate(total_burn=Sum("burn_share"))["total_burn"] or 0
         )
-
         # Convert token values to USD using the fetched AMB token price
         total_volume_locked_in_usd = total_volume_locked * amb_token_price
         total_platform_fee_in_usd = total_platform_fee * amb_token_price
         total_burn_fee_in_usd = total_burn_fee * amb_token_price
-
         # Serialize and round the data for better precision
         data = {
             "total_volume_locked": round(total_volume_locked_in_usd, 2),
             "total_platform_fee": round(total_platform_fee_in_usd, 2),
             "total_burn_fee": round(total_burn_fee_in_usd, 2),
         }
-
         return Response(data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
